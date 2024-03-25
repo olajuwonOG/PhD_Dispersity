@@ -1,0 +1,53 @@
+############## Melt N = 50 Freestanding Thick Film#################
+
+
+units		lj
+atom_style	full
+
+read_data	restart.xxxx
+
+bond_style	fene
+bond_coeff	1 30.0 1.5 1.0 1.0
+special_bonds	fene
+
+neighbor	1.0 bin
+neigh_modify	every 1 delay 0 check yes
+
+fix		fix1 all npt temp 1.0 1.0 1.0 iso 0 0 100
+
+timestep	0.005
+
+thermo		1000
+thermo_style 	custom step temp press ke pe ebond eimp evdwl ecoul elong lx ly lz 
+
+
+#################Thick Film Setup#################
+
+change_box all boundary p p f ## Make box non periodic in the z-direction
+
+change_box all z final -(Length of Z box + 5 sigma) (Length of Z box + 5 sigma)
+
+
+#################Equilibration##################
+
+pair_style 	lj/cut 2.5
+       
+pair_modify	shift yes
+
+pair_coeff      * * 1.0 1.0
+
+
+#################Production##################
+
+reset_timestep	0
+
+variable f file python.txt
+variable s equal next(f)
+
+dump dump1 all custom 1000 production.lammpstrj id mol type q xs ys zs ix iy iz
+dump_modify dump1 every v_s
+dump_modify dump1 append yes
+
+restart 1048576 imers.restart
+run	100000
+

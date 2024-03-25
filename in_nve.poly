@@ -1,0 +1,60 @@
+############## N=35 Janani Sampath#################
+
+################ First run to push monomers/chains off each other####################
+
+
+units		lj
+atom_style	molecular
+
+read_restart	imers.restart.50331648
+
+
+
+bond_style	fene
+bond_coeff	1 30.0 1.5 1.0 1.0
+special_bonds	fene
+
+
+
+neighbor	1.0 bin
+neigh_modify	every 1 delay 0 check yes
+
+
+fix		fix1 all nve
+
+
+compute		1 all pressure thermo_temp
+
+
+timestep	0.005
+
+
+thermo		10000
+thermo_style 	custom step temp press ke pe ebond eimp evdwl ecoul elong lx ly lz
+
+
+
+#################Equilibration and coulombics##################
+
+pair_style 	lj/cut 2.5 
+pair_modify	shift yes  
+pair_coeff 	* * 1.0 1.0
+
+
+
+reset_timestep 0
+
+
+fix 		2 all ave/correlate 1 500000 500000 c_1[4] type auto ave running file stressacf_xy overwrite
+fix 		3 all ave/correlate 1 500000 500000 c_1[5] type auto ave running file stressacf_yz overwrite
+fix 		4 all ave/correlate 1 500000 500000 c_1[6] type auto ave running file stressacf_zx overwrite
+
+
+variable f file python.txt
+variable s equal next(f)
+dump dump2 all custom 1000 equilnve.dump id mol type xs ys zs ix iy iz
+dump_modify dump2 every v_s
+dump_modify dump2 append yes
+restart 1048576 imers.restart
+
+run	100139008         
