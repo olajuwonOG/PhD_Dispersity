@@ -1,2 +1,2 @@
 # PhD_Dispersity
- Codes and scripts related to my doctoral project
+ Codes and scripts related to chemical engineering doctoral project
