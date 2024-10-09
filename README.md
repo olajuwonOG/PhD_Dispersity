@@ -1,2 +1,2 @@
 # PhD_Dispersity
- Codes and scripts related to structure and dynamics
+ Codes and scripts related to my doctoral project
